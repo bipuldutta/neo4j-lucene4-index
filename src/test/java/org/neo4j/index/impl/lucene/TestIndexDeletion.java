@@ -265,7 +265,7 @@ public class TestIndexDeletion
 
     private WorkThread createWorker( String name )
     {
-        WorkThread workThread = new WorkThread( index, graphDb, node );
+        WorkThread workThread = new WorkThread( name, index, graphDb, node );
         workers.add( workThread );
         return workThread;
     }

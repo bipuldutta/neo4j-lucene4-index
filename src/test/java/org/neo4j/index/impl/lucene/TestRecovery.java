@@ -33,22 +33,22 @@ import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.RelationshipType;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
-import org.neo4j.graphdb.factory.GraphDatabaseSettings;
 import org.neo4j.graphdb.index.Index;
 import org.neo4j.helpers.collection.MapUtil;
 import org.neo4j.index.Neo4jTestCase;
 import org.neo4j.kernel.DefaultFileSystemAbstraction;
 import org.neo4j.kernel.configuration.Config;
-import org.neo4j.kernel.configuration.ConfigurationDefaults;
+//import org.neo4j.kernel.configuration.ConfigurationDefaults;
 import org.neo4j.kernel.impl.index.IndexStore;
 import org.neo4j.kernel.impl.nioneo.store.FileSystemAbstraction;
+import org.neo4j.kernel.impl.transaction.AbstractTransactionManager;
 import org.neo4j.kernel.impl.transaction.PlaceboTm;
 import org.neo4j.kernel.impl.transaction.xaframework.DefaultLogBufferFactory;
 import org.neo4j.kernel.impl.transaction.xaframework.LogPruneStrategies;
 import org.neo4j.kernel.impl.transaction.xaframework.RecoveryVerifier;
 import org.neo4j.kernel.impl.transaction.xaframework.TxIdGenerator;
 import org.neo4j.kernel.impl.transaction.xaframework.XaFactory;
-import org.neo4j.kernel.impl.util.StringLogger;
+import org.neo4j.kernel.logging.DevNullLoggingService;
 import org.neo4j.test.ProcessStreamHandler;
 
 /**
@@ -142,11 +142,16 @@ public class TestRecovery
         FileSystemAbstraction fileSystem = fileSystemAbstraction;
         Map<String, String> params = MapUtil.stringMap(
                 "store_dir", getDbPath());
-        Config config = new Config( new ConfigurationDefaults(GraphDatabaseSettings.class ).apply(params ));
-        LuceneDataSource ds = new LuceneDataSource( config, new IndexStore( getDbPath(), fileSystem ), fileSystem,
-                                                   new XaFactory( config, TxIdGenerator.DEFAULT, new PlaceboTm(), new DefaultLogBufferFactory(), fileSystemAbstraction, StringLogger.DEV_NULL, RecoveryVerifier.ALWAYS_VALID, LogPruneStrategies.NO_PRUNING ));
-        ds.start();
-        ds.stop();
+        Config config = new Config(params);
+        
+        TxIdGenerator tm =  TxIdGenerator.DEFAULT;
+        XaFactory xaFactory = new XaFactory( config, TxIdGenerator.DEFAULT,
+        		new PlaceboTm(null, TxIdGenerator.DEFAULT), new DefaultLogBufferFactory(), fileSystem, new DevNullLoggingService(),
+                RecoveryVerifier.ALWAYS_VALID, LogPruneStrategies.NO_PRUNING);
+        
+        LuceneDataSource ds = new LuceneDataSource( config, new IndexStore( new File(getDbPath()), fileSystem ), fileSystem, xaFactory);
+		ds.start();
+		ds.stop();
     }
 
     @Test

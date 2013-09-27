@@ -26,21 +26,28 @@ import java.nio.channels.ReadableByteChannel;
 import java.util.TimeZone;
 
 import org.neo4j.helpers.Pair;
+import org.neo4j.kernel.DefaultFileSystemAbstraction;
+import org.neo4j.kernel.impl.nioneo.store.FileSystemAbstraction;
 import org.neo4j.kernel.impl.transaction.xaframework.XaCommand;
 import org.neo4j.kernel.impl.transaction.xaframework.XaCommandFactory;
 
 public class DumpLogicalLog extends org.neo4j.kernel.impl.util.DumpLogicalLog
 {
+	public DumpLogicalLog(FileSystemAbstraction fileSystem) {
+		super(fileSystem);
+	}
+	
     public static void main( String[] args ) throws IOException
     {
-        Pair<Iterable<String>, TimeZone> config = parseConfig( args );
+    	Pair<Iterable<String>, TimeZone> config = parseConfig( args );
         for ( String file : config.first() )
         {
-            int dumped = new DumpLogicalLog().dump( file, config.other() );
+        	FileSystemAbstraction fsa = new DefaultFileSystemAbstraction();
+            int dumped = new DumpLogicalLog(fsa).dump( file, config.other() );
             if ( dumped == 0 && isAGraphDatabaseDirectory( file ) )
             {   // If none were found and we really pointed to a neodb directory
                 // then go to its index folder and try there.
-                new DumpLogicalLog().dump( new File( file, "index" ).getAbsolutePath(), config.other() );
+                new DumpLogicalLog(fsa).dump( new File( file, "index" ).getAbsolutePath(), config.other() );
             }
         }
     }

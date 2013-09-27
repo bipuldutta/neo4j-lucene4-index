@@ -1447,10 +1447,13 @@ public class TestLuceneIndex extends AbstractLuceneIndexTest
         Index<Node> index = nodeIndex(
                 LuceneIndexImplementation.EXACT_CONFIG );
         Node node = graphDb.createNode();
+        String name = "dutta";
         String key = "noob";
         String value = "Johan";
 
-        WorkThread thread = new WorkThread( index, graphDb, node );
+        //WorkThread thread = new WorkThread( index, graphDb, node );
+        WorkThread thread = new WorkThread(name, index, graphDb, node);
+        
         thread.beginTransaction();
         try
         {
@@ -1487,11 +1490,12 @@ public class TestLuceneIndex extends AbstractLuceneIndexTest
         Index<Node> index = nodeIndex( LuceneIndexImplementation.EXACT_CONFIG );
         Node node = graphDb.createNode();
         commitTx();
+        String name = "dutta";
         String key = "name";
         String value = "Mattias";
 
-        WorkThread t1 = new WorkThread( index, graphDb, node );
-        WorkThread t2 = new WorkThread( index, graphDb, node );
+        WorkThread t1 = new WorkThread( name, index, graphDb, node );
+        WorkThread t2 = new WorkThread( name, index, graphDb, node );
         t1.beginTransaction();
         t2.beginTransaction();
         assertNull( t2.putIfAbsent( node, key, value ).get() );
@@ -1513,12 +1517,13 @@ public class TestLuceneIndex extends AbstractLuceneIndexTest
         Index<Node> index = nodeIndex( LuceneIndexImplementation.EXACT_CONFIG );
         Node node = graphDb.createNode();
         commitTx();
+        String name = "dutta";
         String key = "name";
         String value = "Mattias";
         String otherValue = "Tobias";
 
-        WorkThread t1 = new WorkThread( index, graphDb, node );
-        WorkThread t2 = new WorkThread( index, graphDb, node );
+        WorkThread t1 = new WorkThread( name, index, graphDb, node );
+        WorkThread t2 = new WorkThread( name, index, graphDb, node );
         t1.beginTransaction();
         t2.beginTransaction();
         assertNull( t2.putIfAbsent( node, key, value ).get() );
@@ -1540,12 +1545,13 @@ public class TestLuceneIndex extends AbstractLuceneIndexTest
         Index<Node> index = nodeIndex( LuceneIndexImplementation.EXACT_CONFIG );
         Node node = graphDb.createNode();
         commitTx();
+        String name = "dutta";
         String key = "name";
         String otherKey = "friend";
         String value = "Mattias";
 
-        WorkThread t1 = new WorkThread( index, graphDb, node );
-        WorkThread t2 = new WorkThread( index, graphDb, node );
+        WorkThread t1 = new WorkThread( name, index, graphDb, node );
+        WorkThread t2 = new WorkThread( name, index, graphDb, node );
         t1.beginTransaction();
         t2.beginTransaction();
         assertNull( t2.putIfAbsent( node, key, value ).get() );
@@ -1565,12 +1571,13 @@ public class TestLuceneIndex extends AbstractLuceneIndexTest
     {
         Index<Node> index = nodeIndex( LuceneIndexImplementation.EXACT_CONFIG );
         Node node = graphDb.createNode();
+        String name = "dutta";
         String key = "key";
         String value = "value";
         index.add( node, key, value );
         restartTx();
 
-        WorkThread otherThread = new WorkThread( index, graphDb, node );
+        WorkThread otherThread = new WorkThread( name, index, graphDb, node );
         otherThread.beginTransaction();
 
         // Should not grab lock
@@ -1650,11 +1657,12 @@ public class TestLuceneIndex extends AbstractLuceneIndexTest
     public void getOrCreateMultiThreaded() throws Exception
     {
         Index<Node> index = nodeIndex( LuceneIndexImplementation.EXACT_CONFIG );
+        String name = "dutta";
         String key = "name";
         String value = "Mattias";
 
-        WorkThread t1 = new WorkThread( index, graphDb, null );
-        WorkThread t2 = new WorkThread( index, graphDb, null );
+        WorkThread t1 = new WorkThread( name, index, graphDb, null );
+        WorkThread t2 = new WorkThread( name, index, graphDb, null );
         t1.beginTransaction();
         t2.beginTransaction();
         Node node = t2.getOrCreate( key, value, 0 ).get();

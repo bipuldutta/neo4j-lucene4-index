@@ -38,11 +38,11 @@ class MultipleBackupDeletionPolicy extends SnapshotDeletionPolicy
     }
 
     @Override
-    public synchronized IndexCommit snapshot( String id ) throws IOException
+    public synchronized IndexCommit snapshot() throws IOException
     {
         if ( snapshotUsers == 0 )
         {
-            snapshot = super.snapshot( id );
+            snapshot = super.snapshot();
         }
         // Incremented after the call to super.snapshot() so that it wont get incremented
         // if an exception (IllegalStateException if empty index) is thrown
@@ -51,10 +51,10 @@ class MultipleBackupDeletionPolicy extends SnapshotDeletionPolicy
     }
 
     @Override
-    public synchronized void release( String id ) throws IOException
+    public synchronized void release(IndexCommit commit) throws IOException
     {
         if ( (--snapshotUsers) > 0 ) return;
-        super.release( id );
+        super.release( commit );
         snapshot = null;
         if ( snapshotUsers < 0 )
         {

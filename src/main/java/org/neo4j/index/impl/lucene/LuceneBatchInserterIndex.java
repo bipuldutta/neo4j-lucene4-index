@@ -19,6 +19,18 @@
  */
 package org.neo4j.index.impl.lucene;
 
+import static org.neo4j.index.impl.lucene.LuceneDataSource.LUCENE_VERSION;
+import static org.neo4j.index.impl.lucene.LuceneDataSource.getDirectory;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.CorruptIndexException;
 import org.apache.lucene.index.IndexReader;
@@ -35,17 +47,6 @@ import org.neo4j.index.lucene.ValueContext;
 import org.neo4j.kernel.impl.cache.LruCache;
 import org.neo4j.kernel.impl.util.IoPrimitiveUtils;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-
-import static org.neo4j.index.impl.lucene.LuceneDataSource.LUCENE_VERSION;
-import static org.neo4j.index.impl.lucene.LuceneDataSource.getDirectory;
-
 class LuceneBatchInserterIndex implements BatchInserterIndex,
         org.neo4j.unsafe.batchinsert.BatchInserterIndex
 {
@@ -60,14 +61,14 @@ class LuceneBatchInserterIndex implements BatchInserterIndex,
     private int updateCount;
     private int commitBatchSize = 500000;
 
-    LuceneBatchInserterIndex( String dbStoreDir,
+    LuceneBatchInserterIndex( File dbStoreDir,
             IndexIdentifier identifier, Map<String, String> config )
     {
-        Pair<String, Boolean> storeDir = LuceneDataSource.getStoreDir( dbStoreDir );
-        this.createdNow = !LuceneDataSource.getFileDirectory( storeDir.first(), identifier ).exists();
+    	Pair<String, Boolean> storeDir = LuceneDataSource.getStoreDir( dbStoreDir );
+        this.createdNow = !LuceneDataSource.getFileDirectory( new File(storeDir.first()), identifier ).exists();
         this.identifier = identifier;
         this.type = IndexType.getIndexType( identifier, config );
-        this.writer = instantiateWriter( storeDir.first() );
+        this.writer = instantiateWriter( new File(storeDir.first()) );
     }
     
     /**
@@ -229,7 +230,7 @@ class LuceneBatchInserterIndex implements BatchInserterIndex,
         }
     }
 
-    private IndexWriter instantiateWriter( String directory )
+    private IndexWriter instantiateWriter(  File directory )
     {
         try
         {
