@@ -7,7 +7,7 @@
   </parent>
   <groupId>com.keatext</groupId>
   <artifactId>neo4j-lucene4-index</artifactId>
-  <version>1.9.M01-SNAPSHOT</version>
+  <version>1.9.M05-SNAPSHOT</version>
   <name>Neo4j - Lucene Index</name>
   <description>
 Integration layer between Neo4j and Lucene v4, providing one possible implementation of the Index API.
